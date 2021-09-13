@@ -21,7 +21,7 @@ import "log"
 import "github.com/unpoller/unifi"
 
 func main() {
-	c := *unifi.Config{
+	c := &unifi.Config{
 		User: "admin",
 		Pass: "superSecret1234",
 		URL:  "https://127.0.0.1:8443/",
