@@ -22,6 +22,7 @@ func (u *Unifi) GetDevices(sites []*Site) (*Devices, error) {
 
 		loopDevices := u.parseDevices(response.Data, site)
 		devices.UAPs = append(devices.UAPs, loopDevices.UAPs...)
+		devices.USPs = append(devices.USPs, loopDevices.USPs...)
 		devices.USGs = append(devices.USGs, loopDevices.USGs...)
 		devices.USWs = append(devices.USWs, loopDevices.USWs...)
 		devices.UDMs = append(devices.UDMs, loopDevices.UDMs...)
@@ -44,6 +45,42 @@ func (u *Unifi) GetUSWs(site *Site) ([]*USW, error) {
 	}
 
 	return u.parseDevices(response.Data, site).USWs, nil
+}
+
+// PutUSPs returns all access points, an error, or nil if there are no APs.
+func (u *Unifi) PutUSPs(site *Site, usp *USP) ([]*USP, error) {
+	var response struct {
+		Data []json.RawMessage `json:"data"`
+	}
+
+	overrides := OutletOverrides{
+		OutletOverrides: usp.OutletOverrides,
+	}
+	body, err := json.Marshal(overrides)
+	if err != nil {
+		return nil, err
+	}
+
+	err = u.PutData(fmt.Sprintf(APIDeviceRestPath, site.Name, usp.DeviceID), &response, string(body))
+	if err != nil {
+		return nil, err
+	}
+
+	return u.parseDevices(response.Data, site).USPs, nil
+}
+
+// GetUSPs returns all access points, an error, or nil if there are no APs.
+func (u *Unifi) GetUSPs(site *Site) ([]*USP, error) {
+	var response struct {
+		Data []json.RawMessage `json:"data"`
+	}
+
+	err := u.GetData(fmt.Sprintf(APIDevicePath, site.Name), &response)
+	if err != nil {
+		return nil, err
+	}
+
+	return u.parseDevices(response.Data, site).USPs, nil
 }
 
 // GetUAPs returns all access points, an error, or nil if there are no APs.
@@ -116,7 +153,7 @@ func (u *Unifi) parseDevices(data []json.RawMessage, site *Site) *Devices {
 		var o minimalUnmarshalInfo
 		if u.unmarshalDevice("map", r, &o) != nil {
 			u.ErrorLog("unknown asset type - cannot find asset type in payload - skipping")
-			
+
 			continue
 		}
 
@@ -127,7 +164,12 @@ func (u *Unifi) parseDevices(data []json.RawMessage, site *Site) *Devices {
 
 		switch assetType { // Unmarshal again into the correct type..
 		case "uap":
-			u.unmarshallUAP(site, r, devices)
+			switch model {
+			case "UP6":
+				u.unmarshallUSP(site, r, devices)
+			default:
+				u.unmarshallUAP(site, r, devices)
+			}
 		case "ugw", "usg": // in case they ever fix the name in the api.
 			u.unmarshallUSG(site, r, devices)
 		case "usw":
@@ -149,6 +191,17 @@ func (u *Unifi) parseDevices(data []json.RawMessage, site *Site) *Devices {
 	}
 
 	return devices
+}
+
+func (u *Unifi) unmarshallUSP(site *Site, payload json.RawMessage, devices *Devices) {
+	dev := &USP{
+		UAP: UAP{SiteName: site.SiteName, SourceName: u.URL},
+	}
+	if u.unmarshalDevice("usp", payload, dev) == nil {
+		dev.Name = strings.TrimSpace(pick(dev.Name, dev.Mac))
+		dev.site = site
+		devices.USPs = append(devices.USPs, dev)
+	}
 }
 
 func (u *Unifi) unmarshallUAP(site *Site, payload json.RawMessage, devices *Devices) {

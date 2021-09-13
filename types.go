@@ -125,6 +125,8 @@ const (
 	APINetworkPath string = "/api/s/%s/rest/networkconf"
 	// APIDevicePath is where we get data about Unifi devices.
 	APIDevicePath string = "/api/s/%s/stat/device"
+	// APIDeviceRestPath is where we put data about Unifi devices.
+	APIDeviceRestPath string = "/api/s/%s/rest/device/%s"
 	// APILoginPath is Unifi Controller Login API Path.
 	APILoginPath string = "/api/login"
 	// APILoginPathNew is how we log into UDM 5.12.55+.
@@ -177,6 +179,7 @@ type Devices struct {
 	UDMs []*UDM `fakesize:"5"`
 	UXGs []*UXG `fakesize:"5"`
 	PDUs []*PDU `fakesize:"5"`
+	USPs []*USP `fakesize:"5"`
 }
 
 // Config is the data passed into our library. This configures things and allows
