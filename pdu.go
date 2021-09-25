@@ -79,41 +79,33 @@ type PDU struct {
 	Serial                   string           `json:"serial"`
 	SetupID                  string           `fake:"{uuid}"                      json:"setup_id"`
 	site                     *Site
-	SiteID                   string           `fake:"{uuid}"                    json:"site_id"`
-	SiteName                 string           `json:"site_name"`
-	SourceName               string           `json:"source_name"`
-	StartConnectedMillis     FlexInt          `json:"start_connected_millis"`
-	StartDisconnectedMillis  FlexInt          `json:"start_disconnected_millis"`
-	StartupTimestamp         FlexInt          `json:"startup_timestamp"`
-	Stat                     PDUStat          `json:"stat"`
-	State                    FlexInt          `json:"state"`
-	StpPriority              FlexInt          `json:"stp_priority"`
-	StpVersion               string           `fake:"{appversion}"              json:"stp_version"`
-	SwitchCaps               *SwitchCaps      `json:"switch_caps"`
-	SysErrorCaps             FlexInt          `json:"sys_error_caps"`
-	SyslogKey                string           `json:"syslog_key"`
-	SysStats                 SysStats         `json:"sys_stats"`
-	SystemStats              SystemStats      `json:"system-stats"`
-	TotalMaxPower            FlexInt          `json:"total_max_power"`
-	TwoPhaseAdopt            FlexBool         `json:"two_phase_adopt"`
-	TxBytes                  FlexInt          `json:"tx_bytes"`
-	Type                     string           `fake:"{lexify:pdu}"              json:"type"`
-	Unsupported              FlexBool         `json:"unsupported"`
-	UnsupportedReason        FlexInt          `json:"unsupported_reason"`
-	Upgradeable              FlexBool         `json:"upgradable"`
-	Uplink                   Uplink           `json:"uplink"`
-	UplinkDepth              FlexBool         `json:"uplink_depth"`
-	Uptime                   FlexInt          `json:"uptime"`
-	UserNumSta               FlexInt          `json:"user-num_sta"`
-	Version                  string           `fake:"{appversion}"              json:"version"`
-}
-
-// OutletOverride hold the PDU outlet override data.
-type OutletOverride struct {
-	CycleEnabled FlexBool `json:"cycle_enabled"`
-	Index        FlexInt  `json:"index"`
-	Name         string   `json:"name"`
-	RelayState   FlexBool `json:"relay_state"`
+	SiteID                   string      `fake:"{uuid}"                    json:"site_id"`
+	SiteName                 string      `json:"site_name"`
+	SourceName               string      `json:"source_name"`
+	StartConnectedMillis     FlexInt     `json:"start_connected_millis"`
+	StartDisconnectedMillis  FlexInt     `json:"start_disconnected_millis"`
+	StartupTimestamp         FlexInt     `json:"startup_timestamp"`
+	Stat                     PDUStat     `json:"stat"`
+	State                    FlexInt     `json:"state"`
+	StpPriority              FlexInt     `json:"stp_priority"`
+	StpVersion               string      `fake:"{appversion}"              json:"stp_version"`
+	SwitchCaps               *SwitchCaps `json:"switch_caps"`
+	SysErrorCaps             FlexInt     `json:"sys_error_caps"`
+	SyslogKey                string      `json:"syslog_key"`
+	SysStats                 SysStats    `json:"sys_stats"`
+	SystemStats              SystemStats `json:"system-stats"`
+	TotalMaxPower            FlexInt     `json:"total_max_power"`
+	TwoPhaseAdopt            FlexBool    `json:"two_phase_adopt"`
+	TxBytes                  FlexInt     `json:"tx_bytes"`
+	Type                     string      `fake:"{lexify:pdu}"              json:"type"`
+	Unsupported              FlexBool    `json:"unsupported"`
+	UnsupportedReason        FlexInt     `json:"unsupported_reason"`
+	Upgradeable              FlexBool    `json:"upgradable"`
+	Uplink                   Uplink      `json:"uplink"`
+	UplinkDepth              FlexBool    `json:"uplink_depth"`
+	Uptime                   FlexInt     `json:"uptime"`
+	UserNumSta               FlexInt     `json:"user-num_sta"`
+	Version                  string      `fake:"{appversion}"              json:"version"`
 }
 
 // OutletTable hold the PDU outlet data.

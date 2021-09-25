@@ -23,6 +23,7 @@ type DPIData struct {
 	RxPackets    FlexInt      `json:"rx_packets"`
 	TxBytes      FlexInt      `json:"tx_bytes"`
 	TxPackets    FlexInt      `json:"tx_packets"`
+	Apps         []FlexInt    `json:"apps"`
 }
 
 // DPIClient data is sometimes included in ByApp output.

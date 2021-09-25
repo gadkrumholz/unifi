@@ -641,4 +641,7 @@ type Port struct {
 	TxRate             FlexInt    `json:"tx_rate,omitempty"`
 	Type               string     `json:"type,omitempty"`
 	Up                 FlexBool   `json:"up"`
+	AttrNoEdit         FlexBool   `json:"attr_no_edit,omitempty"`
+	RxRateMax          FlexInt    `json:"rx_rate-max"`
+	TxRateMax          FlexInt    `json:"tx_rate-max"`
 }
