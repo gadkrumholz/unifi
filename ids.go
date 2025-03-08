@@ -8,55 +8,55 @@ import (
 )
 
 // IDS holds an Intrusion Prevention System Event.
-type IDS struct {
-	AppProto              string    `json:"app_proto,omitempty"`
-	Archived              FlexBool  `json:"archived"`
-	Catname               string    `json:"catname"`
-	Datetime              time.Time `fake:"{recent_time}"            json:"datetime"`
-	DestIP                string    `fake:"{ipv4address}"            json:"dest_ip"`
-	DestIPGeo             IPGeo     `json:"dstipGeo"`
-	DestPort              int       `fake:"{port}"                   json:"dest_port,omitempty"`
-	DstIPASN              string    `fake:"{address}"                json:"dstipASN"`
-	DstIPCountry          string    `fake:"{country}"                json:"dstipCountry"`
-	DstMAC                string    `fake:"{macaddress}"             json:"dst_mac"`
-	EventType             string    `json:"event_type"`
-	FlowID                int64     `json:"flow_id"`
-	Host                  string    `json:"host"`
-	ID                    string    `fake:"{uuid}"                   json:"_id"`
-	InIface               string    `json:"in_iface"`
-	InnerAlertAction      string    `json:"inner_alert_action"`
-	InnerAlertCategory    string    `json:"inner_alert_category"`
-	InnerAlertGID         int64     `json:"inner_alert_gid"`
-	InnerAlertRev         int64     `json:"inner_alert_rev"`
-	InnerAlertSeverity    int64     `json:"inner_alert_severity"`
-	InnerAlertSignature   string    `json:"inner_alert_signature"`
-	InnerAlertSignatureID int64     `json:"inner_alert_signature_id"`
-	Key                   string    `fake:"{uuid}"                   json:"key"`
-	Msg                   string    `fake:"{buzzword}"               json:"msg"`
-	Proto                 string    `json:"proto"`
-	SiteID                string    `fake:"{uuid}"                   json:"site_id"`
-	SiteName              string    `json:"-"`
-	SourceIPGeo           IPGeo     `json:"srcipGeo"`
-	SourceName            string    `json:"-"`
-	SrcIP                 string    `fake:"{ipv4address}"            json:"src_ip"`
-	SrcIPASN              string    `fake:"{address}"                json:"srcipASN"`
-	SrcIPCountry          string    `fake:"{country}"                json:"srcipCountry"`
-	SrcMAC                string    `fake:"{macaddress}"             json:"src_mac"`
-	SrcPort               int       `fake:"{port}"                   json:"src_port,omitempty"`
-	Subsystem             string    `json:"subsystem"`
-	Time                  int64     `fake:"{timestamp}"              json:"time"`
-	Timestamp             int64     `fake:"{timestamp}"              json:"timestamp"`
-	USGIP                 string    `fake:"{ipv4address}"            json:"usgip"`
-	USGIPASN              string    `fake:"{address}"                json:"usgipASN"`
-	USGIPCountry          string    `fake:"{country}"                json:"usgipCountry"`
-	USGIPGeo              IPGeo     `json:"usgipGeo"`
-	UniqueAlertID         string    `json:"unique_alertid"`
+type IDS struct { //nolint:revive
+	AppProto              string     `json:"app_proto,omitempty"`
+	Archived              FlexBool   `json:"archived"`
+	Catname               FlexString `json:"catname"`
+	Datetime              time.Time  `fake:"{recent_time}"            json:"datetime"`
+	DestIP                string     `fake:"{ipv4address}"            json:"dest_ip"`
+	DestIPGeo             IPGeo      `json:"dstipGeo"`
+	DestPort              FlexInt    `json:"dest_port,omitempty"`
+	DstIPASN              string     `fake:"{address}"                json:"dstipASN"`
+	DstIPCountry          string     `fake:"{country}"                json:"dstipCountry"`
+	DstMAC                string     `fake:"{macaddress}"             json:"dst_mac"`
+	EventType             string     `json:"event_type"`
+	FlowID                FlexInt    `json:"flow_id"`
+	Host                  string     `json:"host"`
+	ID                    string     `fake:"{uuid}"                   json:"_id"`
+	InIface               string     `json:"in_iface"`
+	InnerAlertAction      string     `json:"inner_alert_action"`
+	InnerAlertCategory    string     `json:"inner_alert_category"`
+	InnerAlertGID         FlexInt    `json:"inner_alert_gid"`
+	InnerAlertRev         FlexInt    `json:"inner_alert_rev"`
+	InnerAlertSeverity    FlexInt    `json:"inner_alert_severity"`
+	InnerAlertSignature   string     `json:"inner_alert_signature"`
+	InnerAlertSignatureID FlexInt    `json:"inner_alert_signature_id"`
+	Key                   string     `fake:"{uuid}"                   json:"key"`
+	Msg                   string     `fake:"{buzzword}"               json:"msg"`
+	Proto                 string     `json:"proto"`
+	SiteID                string     `fake:"{uuid}"                   json:"site_id"`
+	SiteName              string     `json:"-"`
+	SourceIPGeo           IPGeo      `json:"srcipGeo"`
+	SourceName            string     `json:"-"`
+	SrcIP                 string     `fake:"{ipv4address}"            json:"src_ip"`
+	SrcIPASN              string     `fake:"{address}"                json:"srcipASN"`
+	SrcIPCountry          string     `fake:"{country}"                json:"srcipCountry"`
+	SrcMAC                string     `fake:"{macaddress}"             json:"src_mac"`
+	SrcPort               FlexInt    `json:"src_port,omitempty"`
+	Subsystem             string     `json:"subsystem"`
+	Time                  FlexInt    `json:"time"`
+	Timestamp             FlexInt    `json:"timestamp"`
+	USGIP                 string     `fake:"{ipv4address}"            json:"usgip"`
+	USGIPASN              string     `fake:"{address}"                json:"usgipASN"`
+	USGIPCountry          string     `fake:"{country}"                json:"usgipCountry"`
+	USGIPGeo              IPGeo      `json:"usgipGeo"`
+	UniqueAlertID         string     `json:"unique_alertid"`
 }
 
 // GetIDS returns Intrusion Detection Systems events for a list of Sites.
 // timeRange may have a length of 0, 1 or 2. The first time is Start, the second is End.
 // Events between start and end are returned. End defaults to time.Now().
-func (u *Unifi) GetIDS(sites []*Site, timeRange ...time.Time) ([]*IDS, error) {
+func (u *Unifi) GetIDS(sites []*Site, timeRange ...time.Time) ([]*IDS, error) { //nolint:revive
 	data := []*IDS{}
 
 	for _, site := range sites {

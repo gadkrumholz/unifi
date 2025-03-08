@@ -2,11 +2,11 @@ package unifi
 
 type USP struct {
 	UAP
-	OutletOverrides      []*struct {
+	OutletOverrides []*struct {
 		OutletOverride
 	} `json:"outlet_overrides"`
-	OutletEnabled     bool          `json:"outlet_enabled"`
-	OutletTable    []*struct {
+	OutletEnabled bool `json:"outlet_enabled"`
+	OutletTable   []*struct {
 		Index        int    `json:"index"`
 		HasRelay     bool   `json:"has_relay"`
 		HasMetering  bool   `json:"has_metering"`
@@ -14,13 +14,6 @@ type USP struct {
 		CycleEnabled bool   `json:"cycle_enabled"`
 		Name         string `json:"name"`
 	} `json:"outlet_table"`
-}
-
-type OutletOverride struct {
-	Index        int    `json:"index"`
-	Name         string `json:"name"`
-	CycleEnabled bool   `json:"cycle_enabled"`
-	RelayState   bool   `json:"relay_state"`
 }
 
 type OutletOverrides struct {

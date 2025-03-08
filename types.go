@@ -19,7 +19,7 @@ func init() {
 		Description: "Random Unifi Port integer value",
 		Example:     "8443",
 		Output:      "int",
-		Generate: func(r *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
+		Generate: func(r *rand.Rand, _ *gofakeit.MapParams, _ *gofakeit.Info) (interface{}, error) {
 			return r.Int31n(65535), nil
 		},
 	})
@@ -29,7 +29,7 @@ func init() {
 		Description: "Recent timestamp value",
 		Example:     "123456",
 		Output:      "int64",
-		Generate: func(r *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
+		Generate: func(_ *rand.Rand, _ *gofakeit.MapParams, _ *gofakeit.Info) (interface{}, error) {
 			return gofakeit.DateRange(time.Now().Add(-time.Second*59), time.Now().Add(-time.Second)).Unix(), nil
 		},
 	})
@@ -39,7 +39,7 @@ func init() {
 		Description: "Recent time.Time value",
 		Example:     "time.Now().Add(-time.Second)",
 		Output:      "time.Time",
-		Generate: func(r *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
+		Generate: func(_ *rand.Rand, _ *gofakeit.MapParams, _ *gofakeit.Info) (interface{}, error) {
 			return gofakeit.DateRange(time.Now().Add(-time.Second*59), time.Now().Add(-time.Second)), nil
 		},
 	})
@@ -59,7 +59,7 @@ func init() {
 				Description: "The number of ints to generate",
 			},
 		},
-		Generate: func(r *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
+		Generate: func(_ *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
 			l, err := info.GetUint(m, "length")
 			if err != nil {
 				return nil, err
@@ -89,7 +89,7 @@ func init() {
 				Description: "The default value",
 			},
 		},
-		Generate: func(r *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
+		Generate: func(_ *rand.Rand, m *gofakeit.MapParams, info *gofakeit.Info) (interface{}, error) {
 			l, err := info.GetBool(m, "value")
 			if err != nil {
 				return nil, err
@@ -98,9 +98,26 @@ func init() {
 			return *NewFlexBool(l), nil
 		},
 	})
+
+	gofakeit.AddFuncLookup("tempStatusByName", gofakeit.Info{
+		Category:    "custom",
+		Description: "Configured TempStatusByName",
+		Example:     "TempStatusByName{...}",
+		Output:      "TempStatusByName",
+		Generate: func(r *rand.Rand, _ *gofakeit.MapParams, _ *gofakeit.Info) (interface{}, error) {
+			return TempStatusByName{
+				"cpu":     NewFlexTemp(float64(r.Int31n(100))),
+				"sys":     NewFlexTemp(float64(r.Int31n(100))),
+				"probe":   NewFlexTemp(float64(r.Int31n(100))),
+				"memory":  NewFlexTemp(float64(r.Int31n(100))),
+				"network": NewFlexTemp(float64(r.Int31n(100))),
+			}, nil
+		},
+	})
 }
 
 var ErrCannotUnmarshalFlexInt = fmt.Errorf("cannot unmarshal to FlexInt")
+var ErrCannotUnmarshalFlexString = fmt.Errorf("cannot unmarshal to FlexString")
 
 // This is a list of unifi API paths.
 // The %s in each string must be replaced with a Site.Name.
@@ -134,7 +151,7 @@ const (
 	// APILogoutPath is how we logout from UDM.
 	APILogoutPath string = "/api/logout"
 	// APIEventPathIDS returns Intrusion Detection/Prevention Systems Events.
-	APIEventPathIDS string = "/api/s/%s/stat/ips/event"
+	APIEventPathIDS string = "/api/s/%s/stat/ips/event" //nolint:revive
 	// APIEventPathAlarms contains the site alarms.
 	APIEventPathAlarms string = "/api/s/%s/list/alarm"
 	// APIPrefixNew is the prefix added to the new API paths; except login. duh.
@@ -179,6 +196,8 @@ type Devices struct {
 	UDMs []*UDM `fakesize:"5"`
 	UXGs []*UXG `fakesize:"5"`
 	PDUs []*PDU `fakesize:"5"`
+	UBBs []*UBB `fakesize:"5"`
+	UCIs []*UCI `fakesize:"5"`
 	USPs []*USP `fakesize:"5"`
 }
 
@@ -188,6 +207,7 @@ type Devices struct {
 type Config struct {
 	User      string
 	Pass      string
+	APIKey    string
 	URL       string
 	SSLCert   [][]byte
 	ErrorLog  Logger
@@ -221,6 +241,10 @@ type UnifiClient interface { //nolint: revive
 	GetUXGs(site *Site) ([]*UXG, error)
 	// GetUSGs returns all 1Gb gateways, an error, or nil if there are no USGs.
 	GetUSGs(site *Site) ([]*USG, error)
+	// GetUBBs returns all UBB devices, an error, or nil if there are no UBBs.
+	GetUBBs(site *Site) ([]*UBB, error)
+	// GetUCIs returns all UCI devices, an error, or nil if there are no UCIs.
+	GetUCIs(site *Site) ([]*UCI, error)
 	// GetEvents returns a response full of UniFi Events for the last 1 hour from multiple sites.
 	GetEvents(sites []*Site, hours time.Duration) ([]*Event, error)
 	// GetSiteEvents retrieves the last 1 hour's worth of events from a single site.
@@ -292,6 +316,101 @@ type ServerStatus struct {
 	UUID          string   `fake:"{uuid}"       json:"uuid"`
 }
 
+type FlexString struct {
+	Val         string
+	Arr         []string
+	hintIsArray bool
+}
+
+func NewFlexString(v string) *FlexString {
+	return &FlexString{
+		Val:         v,
+		Arr:         []string{v},
+		hintIsArray: false,
+	}
+}
+
+func NewFlexStringArray(v []string) *FlexString {
+	return &FlexString{
+		Val:         strings.Join(v, ", "),
+		Arr:         v,
+		hintIsArray: true,
+	}
+}
+
+// UnmarshalJSON converts a string or number to an integer.
+// Generally, do not call this directly, it's used in the json interface.
+func (f *FlexString) UnmarshalJSON(b []byte) error {
+	var ust interface{}
+
+	if err := json.Unmarshal(b, &ust); err != nil {
+		return fmt.Errorf("json unmarshal: %w", err)
+	}
+
+	switch i := ust.(type) {
+	case []interface{}:
+		f.hintIsArray = true
+		// try to cast to string
+		for _, v := range i {
+			if s, ok := v.(string); ok {
+				f.Arr = append(f.Arr, s)
+			}
+		}
+
+		f.Val = strings.Join(f.Arr, ", ")
+	case []string:
+		f.hintIsArray = true
+		f.Val = strings.Join(i, ", ")
+		f.Arr = i
+	case string:
+		f.Val = i
+		f.Arr = []string{i}
+	case nil:
+		// noop, consider it empty values
+	default:
+		return fmt.Errorf("%v: %w", b, ErrCannotUnmarshalFlexString)
+	}
+
+	return nil
+}
+
+func (f FlexString) MarshalJSON() ([]byte, error) {
+	// array case
+	if f.hintIsArray {
+		return json.Marshal(f.Arr)
+	}
+
+	// plain string case
+	return json.Marshal(f.Val)
+}
+
+func (f FlexString) String() string {
+	return f.Val
+}
+
+func (f FlexString) Fake(faker *gofakeit.Faker) interface{} {
+	randValue := math.Min(math.Max(0.1, math.Abs(faker.Rand.Float64())), 120)
+	s := fmt.Sprintf("fake-%0.2f", randValue)
+
+	if faker.Rand.Intn(2) == 0 {
+		// plain string value
+		return FlexString{
+			Val: s,
+			Arr: []string{s},
+		}
+	}
+
+	// array case
+	s2 := fmt.Sprintf("fake-%0.2f-2", randValue)
+	s3 := fmt.Sprintf("fake-%0.2f-3", randValue)
+	arr := []string{s, s2, s3}
+
+	return FlexString{
+		Val: strings.Join(arr, ", "),
+		Arr: arr,
+	}
+}
+
 // FlexInt provides a container and unmarshalling for fields that may be
 // numbers or strings in the Unifi API.
 type FlexInt struct {
@@ -307,7 +426,7 @@ func NewFlexInt(v float64) *FlexInt {
 }
 
 // UnmarshalJSON converts a string or number to an integer.
-// Generally, do call this directly, it's used in the json interface.
+// Generally, do not call this directly, it's used in the json interface.
 func (f *FlexInt) UnmarshalJSON(b []byte) error {
 	var unk interface{}
 
@@ -454,7 +573,7 @@ func NewFlexTemp(v float64) *FlexTemp {
 }
 
 // UnmarshalJSON converts a string or number to an integer.
-// Generally, do call this directly, it's used in the json interface.
+// Generally, do not call this directly, it's used in the json interface.
 func (f *FlexTemp) UnmarshalJSON(b []byte) error {
 	var unk interface{}
 
